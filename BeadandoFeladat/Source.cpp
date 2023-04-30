@@ -61,7 +61,7 @@ int main()
 	const char* ujsor = "\n";
 	const char* tombszoveg = "A(z) %d elemű tömb tartalma: \n";
 	const char* haromszogbe = "\nHarmoszog adatai: %f\t%f\n";
-	const char* szorzas_erdmenye = "\nA negyzet: %d B negyzet: %d\n";
+	const char* szorzas_erdmenye = "\nC negyzet: %d\n";
 	int mentsukmegazespt;
 	int asd = 2;
 	// tömb feltöltése, adatok bekérése
@@ -147,10 +147,19 @@ int main()
 		mov eax, dword ptr[B]; // A cime másolása eax-ba
 		add eax, tombindex;		// eltolás tombindex-el
 		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		mul eax;					// A*A
+		mul eax;					// B*B
 
 
 		push eax;
+		pop ebx;	// ebx -> B*B; verem teteje A*A
+		pop eax;
+		add eax, ebx;
+		push eax;
+
+
+
+
+
 
 
 		push szorzas_erdmenye;
