@@ -1,0 +1,6 @@
+﻿  Source.cpp
+C:\Users\Daniel\source\repos\BeadandoFeladat\BeadandoFeladat\Source.cpp(12,22): warning C4566: character represented by universal-character-name '\u0151' cannot be represented in the current code page (1252)
+C:\Users\Daniel\source\repos\BeadandoFeladat\BeadandoFeladat\Source.cpp(13,27): warning C4566: character represented by universal-character-name '\u0151' cannot be represented in the current code page (1252)
+C:\Users\Daniel\source\repos\BeadandoFeladat\BeadandoFeladat\Source.cpp(62,27): warning C4566: character represented by universal-character-name '\u0171' cannot be represented in the current code page (1252)
+C:\Users\Daniel\source\repos\BeadandoFeladat\BeadandoFeladat\Source.cpp(65,6): warning C4101: 'mentsukmegazespt': unreferenced local variable
+  BeadandoFeladat.vcxproj -> C:\Users\Daniel\source\repos\BeadandoFeladat\Debug\BeadandoFeladat.exe
