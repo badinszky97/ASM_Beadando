@@ -53,7 +53,7 @@ int main()
 	cout << endl << N << " elemu tombok letrehozasa...\n";
 	int* A = new int[N];
 	int* B = new int[N];
-	int* C = new int[N];
+	double* C = new double[N];
 	int min_atmero = 0, max_atmero = 0;
 	int haromszogszam = 1;
 	int tombindex; //asm tömbök indexelése (nem akarunk szorozni)
@@ -64,6 +64,7 @@ int main()
 	const char* szorzas_erdmenye = "\nC negyzet: %d\n";
 	int mentsukmegazespt;
 	int asd = 2;
+	float cNegyzet;
 	// tömb feltöltése, adatok bekérése
 	_asm {
 		//fejléc
@@ -153,15 +154,26 @@ int main()
 		push eax;
 		pop ebx;	// ebx -> B*B; verem teteje A*A
 		pop eax;
-		add eax, ebx;
-		push eax;
+		add eax, ebx; //eax-ben van a C negyzet
+		
+		
+		mov ebx, dword ptr[C];
+		add ebx, tombindex;
+		
+		mov cNegyzet, eax;
+
+		fld cNegyzet;
+		fstp qword ptr[ebx];
+		/*fld cNegyzet; // verem tetejere
+		fsqrt;
+		fstp cNegyzet;
+		push cNegyzet;*/
 
 
 
 
 
-
-
+		push eax; //printf-hez
 		push szorzas_erdmenye;
 		call dword ptr printf;
 
@@ -176,7 +188,13 @@ int main()
 
 	}
 
-
+	cout << endl << endl;
+	cout << "C:" << endl;
+	for (int i = 0; i < haromszogszam - 1; i++)
+	{
+		cout << i << ".elem " << C[i] << endl;
+	}
+	cout << "Cnegyzet:" << cNegyzet << endl;
 	delete[] A;
 	delete[] B;
 	delete[] C;
