@@ -14,6 +14,7 @@ int main()
 	const char* masodikbefogo = "Adja meg a(z) %i. háromszög második befogóját:\t"; //printf
 	const char* formati = "%d"; //scanf-hez
 	const char* formatf = "%f"; //lebegőpontos kiíráshoz
+	const char* format_scanfDouble = "%lf";
 	const char* hun = "HUN"; //setlocale
 	const char* _pause = "pause"; //systemhez
 	const char* _kiiras_asmbol = "ASM Az %d.elem: %d\t%d\t%d\n";
@@ -52,9 +53,9 @@ int main()
 		call dword ptr printf;
 	}
 	cout << endl << N << " elemu tombok letrehozasa...\n";
-	int* A = new int[N];
-	int* B = new int[N];
-	int* CC = new int[N];
+	double* A = new double[N];
+	double* B = new double[N];
+	double* CC = new double[N];
 	int min_atmero = 0, max_atmero = 0;
 	int haromszogszam = 1;
 	int tombindex; //asm tömbök indexelése (nem akarunk szorozni)
@@ -62,7 +63,7 @@ int main()
 	const char* ujsor = "\n";
 	const char* tombszoveg = "A(z) %d elemű tömb tartalma: \n";
 	const char* haromszogbe = "\nHarmoszog adatai: %f\t%f\n";
-	const char* szorzas_erdmenye = "\nC negyzet: %d\n";
+	const char* szorzas_erdmenye = "\n!!C negyzet: %f\n";
 	int mentsukmegazespt;
 	int asd = 2;
 	double cNegyzet;
@@ -91,7 +92,7 @@ int main()
 		mov eax, dword ptr[A]; //a címe eax-ben
 		add eax, tombindex;
 		push eax; //verem tetejére tesszük
-		push formati; //formázó karakter
+		push format_scanfDouble; //formázó karakter
 		call dword ptr scanf;
 
 
@@ -104,12 +105,12 @@ int main()
 		mov eax, dword ptr[B]; //b címe eax-ben
 		add eax, tombindex;
 		push eax; //verem tetejére tesszük
-		push formati; //formázó karakter
+		push format_scanfDouble; //formázó karakter
 		call dword ptr scanf;
 
 		mov esp, edi; //esp vissza
 		pop ecx;
-		add tombindex, 4;
+		add tombindex, 8;
 		add haromszogszam, 1;
 
 
@@ -132,40 +133,37 @@ int main()
 
 		mov eax, dword ptr[A]; // A cime másolása eax-ba
 		add eax, tombindex;		// eltolás tombindex-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		mul eax;					// A*A
+		fldz; // 0.0 a verem tetejere
+		fadd qword ptr[eax]; // a[i] a verem tetejen
+		fmul qword ptr[eax]; // a*a a verem tetejen
 
+		//fstp cNegyzet;
 
-		push eax;
-
-		mov eax, dword ptr[B]; // A cime másolása eax-ba
+		mov eax, dword ptr[B]; // B cime másolása eax-ba
 		add eax, tombindex;		// eltolás tombindex-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		mul eax;					// B*B
+		fldz; // 0.0 a verem tetejere
+		fadd qword ptr[eax]; // B[i] a verem tetejen
+		fmul qword ptr[eax]; // b*b a verem tetejen
+
+		faddp st(1), st(0);
+		fsqrt;
 
 
-		push eax;
-		pop ebx;	// ebx -> B*B; verem teteje A*A
-		pop eax;
-		add eax, ebx; //eax-ben van a C negyzet
-
-		mov ebx, dword ptr[CC]; // A cime másolása eax-ba
-		add ebx, tombindex;		// eltolás tombindex-el
-		push eax;
-		pop dword ptr[ebx];
+		mov eax, dword ptr[CC]; // A cime másolása eax-ba
+		add eax, tombindex;		// eltolás tombindex-el
+		fstp qword ptr[eax];
 
 
-		push eax; //printf-hez
-		push szorzas_erdmenye;
-		call dword ptr printf;
 
 
-		// ide kellene irni a gyokvonast!
+		//push qword ptr[eax]; //printf-hez
+		//push szorzas_erdmenye;
+		//call dword ptr printf;
 
 
 		mov esp, edi; //esp vissza
 		pop ecx;
-		add tombindex, 4;
+		add tombindex, 8;
 
 		loop atfogo_szamitasa;
 
@@ -173,100 +171,55 @@ int main()
 	}
 
 
-	cout << endl;
-	/*cout << "kiiratas_forral:" << endl;
+	cout << "Forral: " << endl;
+	cout << "kiiratas_forral:" << endl;
 	for (int i = 0; i < haromszogszam - 1; i++)
 	{
 		cout << i << ".elem " << A[i] << " " << B[i] << " " << CC[i] << endl;
 	}
-	cout << "Cnegyzet:" << cNegyzet << endl;*/
+	//cout << "Cnegyzet:" << cNegyzet << endl;
 
 
-
-	//tomb_kiirasa
-	_asm {
-		// C - oldal szamitasa
-		//mov N, 0;
-		mov ecx, N;
-		mov tombindex, 0;
-	tomb_kiirasa:
-		push ecx; //ecx menteni kell
-		mov edi, esp; //esp mentése
-
-
-		mov eax, dword ptr[CC]; // A cime másolása eax-ba
-		add eax, tombindex;		// eltolás tombindex-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		push eax;					// A*A
-		
-		mov eax, dword ptr[B]; // A cime másolása eax-ba
-		add eax, tombindex;		// eltolás tombindex-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		push eax;					// A*A
-
-
-		mov eax, dword ptr[A]; // A cime másolása eax-ba
-		add eax, tombindex;		// eltolás tombindex-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		push eax;					// A*A
-
-		
-		push ecx; //printf-hez
-		push _kiiras_asmbol;
-		call dword ptr printf;
-
-
-		mov esp, edi; //esp vissza
-		pop ecx;
-		add tombindex, 4;
-
-		loop tomb_kiirasa;
-
-
-
-	}
-	// kiiras asm-bol
 	
 
 
-	int minimum=0, maximum=0;
+	int minimum, maximum;
+	double kuka;
 	// min max kereses
 	_asm {
-
+		mov minimum, 0;
+		mov maximum, 0;
 		mov ecx, N;
 		mov tombindex, 0;
+
+
 	min_max_kereses:
 		push ecx; //ecx menteni kell
 		mov edi, esp; //esp mentése
 
 
 
+
 		mov eax, dword ptr[CC]; // A cime másolása eax-ba
 		add eax, minimum;		// eltolás minimummal-el
 		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		push eax;					// minimum ertek a verem tetejen
+		fld qword ptr[eax];					// minimum ertek a verem tetejen
 
 
 		mov eax, dword ptr[CC]; // A cime másolása eax-ba
 		add eax, tombindex;		// eltolás minimummal-el
 		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		push eax;					// vizsgalando ertek a verem tetejen
+		fld qword ptr[eax];					// vizsgalando ertek a verem tetejen
 
+		fstp kuka;
+		fstp kuka;
 
-
-
-
-
-	
 
 
 		mov esp, edi; //esp vissza
 		pop ecx;
 		add tombindex, 4;
-
 		loop min_max_kereses;
-
-
 	}
 
 
