@@ -9,6 +9,8 @@ int main()
 	const char* beker = "Bekerendo haromszogek szama: "; //printf
 	const char* elsobefogo		= "Adja meg a(z) %i. haromszog elso befogojat:\t"; //printf
 	const char* masodikbefogo	= "Adja meg a(z) %i. haromszog masodik befogojat:\t"; //printf
+	const char* legkisebbAtfogo = "A legkisebb atfogo: %f\n";
+	const char* legnagyobbAtfogo = "A legnagyobb atfogo: %f\n";
 	const char* formati			= "%d"; //scanf-hez
 	const char* formatf			= "%f"; //lebegőpontos kiíráshoz
 	const char* format_scanfDouble = "%lf";
@@ -53,7 +55,7 @@ int main()
 
 	double* A = new double[N];		// befogó #1
 	double* B = new double[N];		// befogó #2
-	double* CC = new double[N];		// átfogó
+	double* C = new double[N];		// átfogó
 	int haromszogszam = 1;			// N+1 -> kiírás ne 0-tól menjen
 	int tombindex;					//asm tömbök indexelése (nem akarunk szorozni)
 	const char* ujsor			= "\n";
@@ -130,7 +132,7 @@ int main()
 		faddp st(1), st(0);		// A*A+B*B a verem tetején
 		fsqrt;					// verem tetején gyököt vonunk
 
-		mov eax, dword ptr[CC]; // C cime másolása eax-ba
+		mov eax, dword ptr[C]; // C cime másolása eax-ba
 		add eax, tombindex;		// C[i]
 		fstp qword ptr[eax];	// verem tetejéről kimentünk C[i]-be
 
@@ -145,53 +147,61 @@ int main()
 	cout << "IDX\tA\tB\tC\n";
 	for (int i = 0; i < haromszogszam - 1; i++)
 	{
-		cout << i << ".elem\t" << A[i] << "\t" << B[i] << "\t" << CC[i] << endl;
+		cout << i << ".elem\t" << A[i] << "\t" << B[i] << "\t" << C[i] << endl;
 	}
 
 	int minimum, maximum;
 	double kuka;
 	// min max kereses
-	/*_asm {
+	_asm {
 		mov minimum, 0;
-		mov maximum, 0;
 		mov ecx, N;
 		mov tombindex, 0;
 
+	min_kereses:
 
-	min_max_kereses:
-		push ecx; //ecx menteni kell
-		mov edi, esp; //esp mentése
-
-
-
-
-		mov eax, dword ptr[CC]; // A cime másolása eax-ba
+		mov eax, dword ptr[C];	// C cime másolása eax-ba
 		add eax, minimum;		// eltolás minimummal-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		fld qword ptr[eax];					// minimum ertek a verem tetejen
+		fld qword ptr[eax];		// minimum ertek a verem tetejen
 
 
-		mov eax, dword ptr[CC]; // A cime másolása eax-ba
-		add eax, tombindex;		// eltolás minimummal-el
-		mov eax, dword ptr[eax];	//cim forditasa ertekke
-		fld qword ptr[eax];					// vizsgalando ertek a verem tetejen
+		mov eax, dword ptr[C];	// C cime másolása eax-ba
+		add eax, tombindex;		// eltolás i-el
+		fld qword ptr[eax];		// vizsgalando ertek a verem tetejen
 
+		fcomi st(0), st(1);
+		jz tovabb1;
+		jnc tovabb1;
+		mov minimum, ecx;
 		fstp kuka;
 		fstp kuka;
+		jmp vege_mindennek;
+	tovabb1:
+		fstp kuka;
+		fstp kuka;
+	vege_mindennek:
+		add tombindex, 8;
+		loop min_kereses;
+		
+	// minimum-ban van a legkisebb atfogo indexe
+		mov ax, minimum;
+		mov cx, 8;
+		mul cx;
+		mov eax, ax;
+		add eax, dword ptr[C];
+		
+		fstp qword ptr[eax];		// minimum ertek a verem tetejen
+		push legkisebbAtfogo;
+		call printf;
+		
 
-
-
-		mov esp, edi; //esp vissza
-		pop ecx;
-		add tombindex, 4;
-		loop min_max_kereses;
-	}*/
-
+	}
+	cout << "\n minimum: " << minimum << endl;
 
 
 	delete[] A;
 	delete[] B;
-	delete[] CC;
+	delete[] C;
 
 	//system("pause");
 	_asm
