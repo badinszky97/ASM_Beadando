@@ -9,14 +9,13 @@ int main()
 	const char* beker = "Bekerendo haromszogek szama: "; //printf
 	const char* elsobefogo		= "Adja meg a(z) %i. haromszog elso befogojat:\t"; //printf
 	const char* masodikbefogo	= "Adja meg a(z) %i. haromszog masodik befogojat:\t"; //printf
-	const char* legkisebbAtfogo = "A legkisebb atfogo: %lf\n";
-	const char* legnagyobbAtfogo = "A legnagyobb atfogo: %lf\n";
+
 	const char* formati			= "%d"; //scanf-hez
-	const char* formatf			= "%f"; //lebegőpontos kiíráshoz
+	const char* formatf			= "%05.3f"; //lebegőpontos kiíráshoz
 	const char* format_scanfDouble = "%lf";
 	const char* hun				= "HUN"; //setlocale
 	const char* _pause = "pause"; //systemhez
-	const char* _kiiras_asmbol = "ASM Az %d.elem: %d\t%d\t%d\n";
+	const char* _kiiras_asmbol = "ASM Az %d.elem: %d\t%d\t%05.3f\n";
 
 
 	//ESP mentése
@@ -249,9 +248,37 @@ int main()
 
 	}
 
-	cout << "\nMinimum elem indexe: " << minimum_index <<  " erteke: " <<  C[minimum_index] << endl;
-	cout << "\nMaximum elem indexe: " << maximum_index <<  " erteke: " <<  C[maximum_index] <<  endl;
+	// cout << "\nMinimum elem indexe: " << minimum_index <<  " erteke: " <<  C[minimum_index] << endl;
+	// cout << "\nMaximum elem indexe: " << maximum_index <<  " erteke: " <<  C[maximum_index] <<  endl;
+	const char* legkisebbAtfogo =  "A legkisebb  atfogo indexe: %d, erteke: %05.3f\n";
+	const char* legnagyobbAtfogo = "A legnagyobb atfogo indexe: %d, erteke: %05.3f\n";
 
+	// minimum, maximum kiirasa:
+	_asm
+	{
+		mov eax, minimum_index;
+		mul nyolc;
+		add eax, dword ptr[C];	// C cime másolása eax-ba
+		fld qword ptr[eax];		// maximum ertek a verem tetejen
+		sub esp, 8;
+		fstp qword ptr[esp];
+		push minimum_index;
+		push legkisebbAtfogo;
+		call printf;
+
+		mov eax, maximum_index;
+		mul nyolc;
+		add eax, dword ptr[C];	// C cime másolása eax-ba
+		fld qword ptr[eax];		// maximum ertek a verem tetejen
+		sub esp, 8;
+		fstp qword ptr[esp];
+		push maximum_index;
+		push legnagyobbAtfogo;
+		call printf;
+		
+
+
+	}
 
 
 
